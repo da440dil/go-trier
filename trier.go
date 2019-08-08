@@ -1,4 +1,4 @@
-// Package trier provides functions for (re-)execution of functions.
+// Package trier provides functions for (re-)execution of functions (within configurable limits) with cancellation.
 package trier
 
 import (
