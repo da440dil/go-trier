@@ -11,13 +11,13 @@ import (
 func ExampleTry() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Execute function
@@ -34,13 +34,13 @@ func ExampleTry() {
 func ExampleTry_withRetryCount() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Execute function
@@ -59,13 +59,13 @@ func ExampleTry_withRetryCount() {
 func ExampleTry_withRetryDelay() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Execute function
@@ -89,13 +89,13 @@ func ExampleTry_withRetryDelay() {
 func ExampleTry_withRetryJitter() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Execute function
@@ -121,13 +121,13 @@ func ExampleTry_withRetryJitter() {
 func ExampleTrier_Try() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Create new trier
@@ -148,13 +148,13 @@ func ExampleTrier_Try() {
 func ExampleTrier_Try_withRetryCount() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Create new trier
@@ -177,13 +177,13 @@ func ExampleTrier_Try_withRetryCount() {
 func ExampleTrier_Try_withRetryDelay() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Create new trier
@@ -210,13 +210,13 @@ func ExampleTrier_Try_withRetryDelay() {
 func ExampleTrier_Try_withRetryJitter() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		// Create new trier
@@ -245,13 +245,13 @@ func ExampleTrier_Try_withRetryJitter() {
 func ExampleTrier_Try_withContext() {
 	i := 0
 	// Create retriable function
-	fn := func() (bool, error) {
+	fn := func() (bool, time.Duration, error) {
 		ok := (i % 2) == 0
 		if ok {
 			fmt.Println(i)
 		}
 		i++
-		return ok, nil
+		return ok, -1, nil
 	}
 	for j := 0; j < 3; j++ {
 		var timeout time.Duration

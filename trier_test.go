@@ -94,13 +94,14 @@ func TestTrierNewDelay(t *testing.T) {
 
 type mock struct {
 	ok      bool
+	d       time.Duration
 	err     error
 	counter int
 }
 
-func (m *mock) Try() (bool, error) {
+func (m *mock) Try() (bool, time.Duration, error) {
 	m.counter++
-	return m.ok, m.err
+	return m.ok, m.d, m.err
 }
 
 func TestNewTrier(t *testing.T) {
@@ -160,17 +161,45 @@ func TestNewTrier(t *testing.T) {
 	})
 
 	t.Run("ErrCounterExceeded WithCounter WithDelay WithContext", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*200)
+		defer cancel()
+
+		rt, err := New(WithRetryCount(2), WithRetryDelay(time.Millisecond*50), WithContext(ctx))
+		assert.NoError(t, err)
+
+		m := &mock{ok: false, d: -1, err: nil}
+		err = rt.Try(m.Try)
+		assert.Error(t, err)
+		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Equal(t, 3, m.counter)
+	})
+
+	t.Run("context.DeadlineExceeded WithCounter WithDelay WithContext", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 		defer cancel()
 
 		rt, err := New(WithRetryCount(2), WithRetryDelay(time.Millisecond*200), WithContext(ctx))
 		assert.NoError(t, err)
 
-		m := &mock{ok: false, err: nil}
+		m := &mock{ok: false, d: -1, err: nil}
 		err = rt.Try(m.Try)
 		assert.Error(t, err)
 		assert.Equal(t, context.DeadlineExceeded, err)
 		assert.Equal(t, 1, m.counter)
+	})
+
+	t.Run("ErrCounterExceeded with custom delay", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
+
+		rt, err := New(WithRetryCount(2), WithRetryDelay(time.Millisecond*200), WithContext(ctx))
+		assert.NoError(t, err)
+
+		m := &mock{ok: false, d: 0, err: nil}
+		err = rt.Try(m.Try)
+		assert.Error(t, err)
+		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Equal(t, 3, m.counter)
 	})
 }
 

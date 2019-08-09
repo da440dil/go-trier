@@ -125,7 +125,7 @@ func New(options ...Option) (*Trier, error) {
 
 // Creates new delay value based on initial delay value and initial value of jitter.
 func (t *Trier) newDelay() int {
-	if t.retryJitter == 0 {
+	if t.retryDelay == 0 || t.retryJitter == 0 {
 		return t.retryDelay
 	}
 	min := t.retryDelay - t.retryJitter
@@ -135,14 +135,17 @@ func (t *Trier) newDelay() int {
 }
 
 // Retriable is a function which execution could be retried.
-type Retriable func() (bool, error)
+// Returns execution success flag.
+// Returns delay value after which execution can be retried.
+// If delay value is less than zero, default value is used.
+type Retriable func() (bool, time.Duration, error)
 
 // Try executes retriable function.
 func (t *Trier) Try(fn Retriable) error {
 	var counter = t.retryCount
 	var timer *time.Timer
 	for {
-		ok, err := fn()
+		ok, d, err := fn()
 		if err != nil {
 			return err
 		}
@@ -154,12 +157,15 @@ func (t *Trier) Try(fn Retriable) error {
 		}
 
 		counter--
-		timeout := millisecondsToDuration(t.newDelay())
+		if d < 0 {
+			d = millisecondsToDuration(t.newDelay())
+		}
+
 		if timer == nil {
-			timer = time.NewTimer(timeout)
+			timer = time.NewTimer(d)
 			defer timer.Stop()
 		} else {
-			timer.Reset(timeout)
+			timer.Reset(d)
 		}
 
 		select {

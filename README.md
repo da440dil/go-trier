@@ -12,11 +12,11 @@
 ```go
 i := 0
 // Create retriable function
-fn := func() (bool, error) {
+fn := func() (bool, time.Duration, error) {
 	// Return true if number is even
 	ok := (i % 2) == 0
 	i++
-	return ok, nil
+	return ok, -1, nil
 }
 for j := 0; j < 3; j++ {
 	// Create context for cancelling tries prematurely
