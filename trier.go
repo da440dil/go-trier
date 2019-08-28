@@ -34,9 +34,6 @@ const ErrInvalidRetryJitter = trierError(
 		" and must be less than or equal to delay",
 )
 
-// ErrRetryCountExceeded is the error returned when number of retries exceeded.
-const ErrRetryCountExceeded = trierError("trier: counter exceeded")
-
 // Option is function returned by functions for setting options.
 type Option func(*Trier) error
 
@@ -153,7 +150,7 @@ func (t *Trier) Try(fn Retriable) error {
 			return nil
 		}
 		if counter <= 0 {
-			return ErrRetryCountExceeded
+			return newTTLError(d)
 		}
 
 		counter--
@@ -183,4 +180,28 @@ func Try(fn Retriable, options ...Option) error {
 		return err
 	}
 	return r.Try(fn)
+}
+
+// TTLError is the error returned when number of retries exceeded.
+type TTLError interface {
+	Error() string
+	TTL() time.Duration
+}
+
+const ttlErrorMsg = "trier: number of retries exceeded"
+
+type ttlError struct {
+	ttl time.Duration
+}
+
+func newTTLError(ttl time.Duration) *ttlError {
+	return &ttlError{ttl}
+}
+
+func (e *ttlError) Error() string {
+	return ttlErrorMsg
+}
+
+func (e *ttlError) TTL() time.Duration {
+	return e.ttl
 }

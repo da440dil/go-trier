@@ -21,9 +21,10 @@ func ExampleTry() {
 	}
 	for j := 0; j < 3; j++ {
 		// Execute function
-		err := trier.Try(fn)
-		if err != nil && err != trier.ErrRetryCountExceeded {
-			fmt.Println(err)
+		if err := trier.Try(fn); err != nil {
+			if _, ok := err.(trier.TTLError); !ok {
+				fmt.Println(err)
+			}
 		}
 	}
 	// Output:
@@ -136,8 +137,10 @@ func ExampleTrier_Try() {
 			fmt.Println(err)
 		}
 		// Execute function
-		if err = t.Try(fn); err != nil && err != trier.ErrRetryCountExceeded {
-			fmt.Println(err)
+		if err = t.Try(fn); err != nil {
+			if _, ok := err.(trier.TTLError); !ok {
+				fmt.Println(err)
+			}
 		}
 	}
 	// Output:

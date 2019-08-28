@@ -127,50 +127,54 @@ func TestNewTrier(t *testing.T) {
 		assert.Equal(t, 1, m.counter)
 	})
 
-	t.Run("ErrCounterExceeded", func(t *testing.T) {
+	t.Run("TTLError", func(t *testing.T) {
 		rt, err := New()
 		assert.NoError(t, err)
 
-		m := &mock{ok: false, err: nil}
+		d := time.Millisecond
+		m := &mock{ok: false, d: d, err: nil}
 		err = rt.Try(m.Try)
 		assert.Error(t, err)
-		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Exactly(t, newTTLError(d), err)
 		assert.Equal(t, 1, m.counter)
 	})
 
-	t.Run("ErrCounterExceeded WithCounter", func(t *testing.T) {
+	t.Run("TTLError WithCounter", func(t *testing.T) {
 		rt, err := New(WithRetryCount(2))
 		assert.NoError(t, err)
 
-		m := &mock{ok: false, err: nil}
+		d := time.Millisecond
+		m := &mock{ok: false, d: d, err: nil}
 		err = rt.Try(m.Try)
 		assert.Error(t, err)
-		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Exactly(t, newTTLError(d), err)
 		assert.Equal(t, 3, m.counter)
 	})
 
-	t.Run("ErrCounterExceeded WithCounter WithContext", func(t *testing.T) {
+	t.Run("TTLError WithCounter WithContext", func(t *testing.T) {
 		rt, err := New(WithRetryCount(2), WithContext(context.Background()))
 		assert.NoError(t, err)
 
-		m := &mock{ok: false, err: nil}
+		d := time.Millisecond
+		m := &mock{ok: false, d: d, err: nil}
 		err = rt.Try(m.Try)
 		assert.Error(t, err)
-		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Exactly(t, newTTLError(d), err)
 		assert.Equal(t, 3, m.counter)
 	})
 
-	t.Run("ErrCounterExceeded WithCounter WithDelay WithContext", func(t *testing.T) {
+	t.Run("TTLError WithCounter WithDelay WithContext", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*200)
 		defer cancel()
 
 		rt, err := New(WithRetryCount(2), WithRetryDelay(time.Millisecond*50), WithContext(ctx))
 		assert.NoError(t, err)
 
-		m := &mock{ok: false, d: -1, err: nil}
+		d := time.Millisecond * -1
+		m := &mock{ok: false, d: d, err: nil}
 		err = rt.Try(m.Try)
 		assert.Error(t, err)
-		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Exactly(t, newTTLError(d), err)
 		assert.Equal(t, 3, m.counter)
 	})
 
@@ -188,17 +192,18 @@ func TestNewTrier(t *testing.T) {
 		assert.Equal(t, 1, m.counter)
 	})
 
-	t.Run("ErrCounterExceeded with custom delay", func(t *testing.T) {
+	t.Run("TTLError with custom delay", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 		defer cancel()
 
 		rt, err := New(WithRetryCount(2), WithRetryDelay(time.Millisecond*200), WithContext(ctx))
 		assert.NoError(t, err)
 
-		m := &mock{ok: false, d: 0, err: nil}
+		d := time.Millisecond * 0
+		m := &mock{ok: false, d: d, err: nil}
 		err = rt.Try(m.Try)
 		assert.Error(t, err)
-		assert.Equal(t, ErrRetryCountExceeded, err)
+		assert.Exactly(t, newTTLError(d), err)
 		assert.Equal(t, 3, m.counter)
 	})
 }
@@ -264,4 +269,11 @@ func TestTrierError(t *testing.T) {
 	v := "any"
 	err := trierError(v)
 	assert.Equal(t, v, err.Error())
+}
+
+func TestTTLError(t *testing.T) {
+	d := time.Millisecond * 42
+	err := newTTLError(d)
+	assert.Equal(t, ttlErrorMsg, err.Error())
+	assert.Equal(t, d, err.TTL())
 }
