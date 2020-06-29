@@ -13,27 +13,6 @@ func init() {
 	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-type trierError string
-
-func (e trierError) Error() string {
-	return string(e)
-}
-
-// ErrInvalidRetryCount is the error returned when WithCounter receives invalid value.
-const ErrInvalidRetryCount = trierError("trier: number of retries must be greater than or equal to 0")
-
-// ErrInvalidRetryDelay is the error returned when WithRetryDelay receives invalid value.
-const ErrInvalidRetryDelay = trierError(
-	"trier: delay between retries must be greater than or equal to 1 millisecond" +
-		" and must be greater than or equal to jitter",
-)
-
-// ErrInvalidRetryJitter is the error returned when WithRetryJitter receives invalid value.
-const ErrInvalidRetryJitter = trierError(
-	"trier: retry jitter must be greater than or equal to 1 millisecond" +
-		" and must be less than or equal to delay",
-)
-
 // Option is function returned by functions for setting options.
 type Option func(*Trier) error
 
@@ -180,28 +159,4 @@ func Try(fn Retriable, options ...Option) error {
 		return err
 	}
 	return r.Try(fn)
-}
-
-// TTLError is the error returned when number of retries exceeded.
-type TTLError interface {
-	Error() string
-	TTL() time.Duration
-}
-
-const ttlErrorMsg = "trier: number of retries exceeded"
-
-type ttlError struct {
-	ttl time.Duration
-}
-
-func newTTLError(ttl time.Duration) *ttlError {
-	return &ttlError{ttl}
-}
-
-func (e *ttlError) Error() string {
-	return ttlErrorMsg
-}
-
-func (e *ttlError) TTL() time.Duration {
-	return e.ttl
 }

@@ -264,16 +264,3 @@ func TestTry(t *testing.T) {
 		assert.Equal(t, ErrInvalidRetryJitter, err)
 	})
 }
-
-func TestTrierError(t *testing.T) {
-	v := "any"
-	err := trierError(v)
-	assert.Equal(t, v, err.Error())
-}
-
-func TestTTLError(t *testing.T) {
-	d := time.Millisecond * 42
-	err := newTTLError(d)
-	assert.Equal(t, ttlErrorMsg, err.Error())
-	assert.Equal(t, d, err.TTL())
-}

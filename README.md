@@ -36,7 +36,7 @@ for j := 0; j < 3; j++ {
 		trier.WithContext(ctx),
 	)
 	if err != nil {
-		if e, ok := err.(trier.TTLError); ok {
+		if e, ok := err.(*trier.TTLError); ok {
 			// Use e.TTL() if need
 		} else {
 			// Error

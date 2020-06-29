@@ -22,7 +22,7 @@ func ExampleTry() {
 	for j := 0; j < 3; j++ {
 		// Execute function
 		if err := trier.Try(fn); err != nil {
-			if _, ok := err.(trier.TTLError); !ok {
+			if _, ok := err.(*trier.TTLError); !ok {
 				fmt.Println(err)
 			}
 		}
@@ -138,7 +138,7 @@ func ExampleTrier_Try() {
 		}
 		// Execute function
 		if err = t.Try(fn); err != nil {
-			if _, ok := err.(trier.TTLError); !ok {
+			if _, ok := err.(*trier.TTLError); !ok {
 				fmt.Println(err)
 			}
 		}
