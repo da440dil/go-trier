@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/da440dil/go-trier.svg?branch=master)](https://travis-ci.com/da440dil/go-trier)
 [![Coverage Status](https://coveralls.io/repos/github/da440dil/go-trier/badge.svg?branch=master)](https://coveralls.io/github/da440dil/go-trier?branch=master)
+[![Go Reference](https://pkg.go.dev/badge/github.com/da440dil/go-trier.svg)](https://pkg.go.dev/github.com/da440dil/go-trier)
 [![GoDoc](https://godoc.org/github.com/da440dil/go-trier?status.svg)](https://godoc.org/github.com/da440dil/go-trier)
 [![Go Report Card](https://goreportcard.com/badge/github.com/da440dil/go-trier)](https://goreportcard.com/report/github.com/da440dil/go-trier)
 
