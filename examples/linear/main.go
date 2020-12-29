@@ -24,6 +24,7 @@ func main() {
 	for i := 0; i < j; i++ {
 		wg.Add(1)
 		go func(i int) {
+			defer wg.Done()
 			ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 			defer cancel()
 			ok, err := tr.Try(ctx, func(i int) trier.Retriable {
@@ -39,7 +40,6 @@ func main() {
 			} else {
 				fmt.Printf("#%v: failure\n", i)
 			}
-			wg.Done()
 		}(i)
 	}
 	wg.Wait()
