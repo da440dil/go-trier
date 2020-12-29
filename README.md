@@ -5,49 +5,46 @@
 [![GoDoc](https://godoc.org/github.com/da440dil/go-trier?status.svg)](https://godoc.org/github.com/da440dil/go-trier)
 [![Go Report Card](https://goreportcard.com/badge/github.com/da440dil/go-trier)](https://goreportcard.com/report/github.com/da440dil/go-trier)
 
-(Re-)execution for Go functions (within configurable limits) with cancellation.
+Re-execution for functions within configurable limits.
 
-## Basic usage
+Basic usage:
 
 ```go
-i := 0
-// Create retriable function
-fn := func() (bool, time.Duration, error) {
-	// Return true if number is even
-	ok := (i % 2) == 0
-	i++
-	return ok, -1, nil
-}
-for j := 0; j < 3; j++ {
-	// Create context for cancelling tries prematurely
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*200)
-	defer cancel()
-
-	// Execute function
-	err := trier.Try(
-		fn,
-		// Set maximum number of retries
-		trier.WithRetryCount(1),
-		// Set delay between retries
-		trier.WithRetryDelay(time.Millisecond*100),
-		// Set maximum time randomly added to delay between retries
-		trier.WithRetryJitter(time.Millisecond*20),
-		// Set context
-		trier.WithContext(ctx),
-	)
-	if err != nil {
-		if e, ok := err.(*trier.TTLError); ok {
-			// Use e.TTL() if need
+tr := trier.NewTrier(
+	// Use linear growth algorithm to create delay between retries
+	trier.NewLinear(time.Millisecond*100),
+	// Set maximum number of retries
+	trier.WithMaxRetries(1),
+	// Set maximum duration randomly added to or extracted from delay
+	// between retries to improve performance under high contention
+	trier.WithJitter(time.Millisecond*50),
+)
+var wg sync.WaitGroup
+j := 3
+for i := 0; i < j; i++ {
+	wg.Add(1)
+	go func(i int) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+		defer cancel()
+		ok, err := tr.Try(ctx, func(i int) trier.Retriable {
+			return func(ctx context.Context) (bool, error) {
+				i++
+				return i%j == 0, nil
+			}
+		}(i))
+		if err != nil {
+			fmt.Printf("#%v: error: %v\n", i, err)
+		} else if ok {
+			fmt.Printf("#%v: success\n", i)
 		} else {
-			// Error
+			fmt.Printf("#%v: failure\n", i)
 		}
-	} else {
-		// Success
-	}
+		wg.Done()
+	}(i)
 }
+wg.Wait()
+// Output:
+// #2: success
+// #0: failure
+// #1: error: context deadline exceeded
 ```
-
-## Example usage
-
-- [example](https://github.com/da440dil/go-counter/blob/master/examples/counter-with-retry/main.go) usage with [rate limiting](https://github.com/da440dil/go-counter)
-- [example](https://github.com/da440dil/go-locker/blob/master/examples/locker-with-retry/main.go) usage with [locking](https://github.com/da440dil/go-locker)

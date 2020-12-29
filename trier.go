@@ -1,162 +1,58 @@
-// Package trier provides functions for (re-)execution of functions (within configurable limits) with cancellation.
+// Package trier provides data structures for re-execution of functions within configurable limits.
 package trier
 
 import (
 	"context"
-	"math/rand"
 	"time"
 )
 
-var rnd *rand.Rand
-
-func init() {
-	rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
-
-// Option is function returned by functions for setting options.
-type Option func(*Trier) error
-
-// WithRetryCount sets maximum number of retries.
-// Must be greater than or equal to 0.
-// By default equals 0.
-func WithRetryCount(v int) Option {
-	return func(t *Trier) error {
-		if v < 0 {
-			return ErrInvalidRetryCount
-		}
-		t.retryCount = v
-		return nil
-	}
-}
-
-// WithRetryDelay sets delay between retries.
-// Must be greater than or equal to 1 millisecond.
-// Must be greater than or equal to value of jitter.
-// By default equals 0.
-func WithRetryDelay(v time.Duration) Option {
-	return func(t *Trier) error {
-		if v < time.Millisecond {
-			return ErrInvalidRetryDelay
-		}
-		t.retryDelay = durationToMilliseconds(v)
-		if t.retryDelay < t.retryJitter {
-			return ErrInvalidRetryDelay
-		}
-		return nil
-	}
-}
-
-// WithRetryJitter sets maximum time randomly added to delay between retries
-// to improve performance under high contention.
-// Must be greater than or equal to 1 millisecond.
-// Must be less than or equal to delay.
-// By default equals 0.
-func WithRetryJitter(v time.Duration) Option {
-	return func(t *Trier) error {
-		if v < time.Millisecond {
-			return ErrInvalidRetryJitter
-		}
-		t.retryJitter = durationToMilliseconds(v)
-		if t.retryJitter > t.retryDelay {
-			return ErrInvalidRetryJitter
-		}
-		return nil
-	}
-}
-
-// WithContext sets context which allows cancelling tries prematurely.
-func WithContext(v context.Context) Option {
-	return func(t *Trier) error {
-		t.ctx = v
-		return nil
-	}
-}
-
-func durationToMilliseconds(d time.Duration) int {
-	return int(d / time.Millisecond)
-}
-
-func millisecondsToDuration(ms int) time.Duration {
-	return time.Duration(ms) * time.Millisecond
-}
-
 // Trier defines parameters for executing retriable functions.
 type Trier struct {
-	retryCount  int // must be greater than or equal to zero
-	retryDelay  int // must be greater than or equal to jitter
-	retryJitter int // must be less than or equal to delay
-	ctx         context.Context
+	b Iterable
 }
 
-// New creates new Trier.
-func New(options ...Option) (*Trier, error) {
-	r := &Trier{ctx: context.Background()}
-	for _, fn := range options {
-		if err := fn(r); err != nil {
-			return nil, err
-		}
+// NewTrier creates new trier.
+func NewTrier(b Iterable, fns ...Decorator) Trier {
+	for _, fn := range fns {
+		b = fn(b)
 	}
-	return r, nil
+	return Trier{b}
 }
 
-// Creates new delay value based on initial delay value and initial value of jitter.
-func (t *Trier) newDelay() int {
-	if t.retryDelay == 0 || t.retryJitter == 0 {
-		return t.retryDelay
-	}
-	min := t.retryDelay - t.retryJitter
-	max := t.retryDelay + t.retryJitter
-	v := rnd.Intn(max-min+1) + min
-	return v
-}
+// Retriable is a function which execution could be retried,
+// returns execution success flag.
+type Retriable func(ctx context.Context) (bool, error)
 
-// Retriable is a function which execution could be retried.
-// Returns execution success flag.
-// Returns delay value after which execution can be retried.
-// If delay value is less than zero, default value is used.
-type Retriable func() (bool, time.Duration, error)
-
-// Try executes retriable function.
-func (t *Trier) Try(fn Retriable) error {
-	var counter = t.retryCount
+// Try executes retriable function,
+// retries execution if execution success flag equals false.
+func (t Trier) Try(ctx context.Context, fn Retriable) (bool, error) {
+	var it Iterator
 	var timer *time.Timer
 	for {
-		ok, d, err := fn()
+		ok, err := fn(ctx)
 		if err != nil {
-			return err
+			return false, err
 		}
 		if ok {
-			return nil
+			return ok, err
 		}
-		if counter <= 0 {
-			return newTTLError(d)
+		if it == nil {
+			it = t.b.Iterator()
 		}
-
-		counter--
-		if d < 0 {
-			d = millisecondsToDuration(t.newDelay())
+		d, done := it.Next()
+		if done {
+			return false, err
 		}
-
 		if timer == nil {
 			timer = time.NewTimer(d)
 			defer timer.Stop()
 		} else {
 			timer.Reset(d)
 		}
-
 		select {
-		case <-t.ctx.Done():
-			return t.ctx.Err()
+		case <-ctx.Done():
+			return false, ctx.Err()
 		case <-timer.C:
 		}
 	}
-}
-
-// Try executes retriable function.
-func Try(fn Retriable, options ...Option) error {
-	r, err := New(options...)
-	if err != nil {
-		return err
-	}
-	return r.Try(fn)
 }
