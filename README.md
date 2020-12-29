@@ -89,3 +89,5 @@ func (i fibonacci) Iterator() trier.Iterator {
 	return &fibonacci{i.prev, i.curr}
 }
 ```
+
+[Benchmarks](./benchmarks.md)
