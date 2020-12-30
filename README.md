@@ -73,8 +73,7 @@ func main() {
 }
 
 type fibonacci struct {
-	prev time.Duration
-	curr time.Duration
+	prev, curr time.Duration
 }
 
 func newFibonacci(d time.Duration) trier.Iterable {
