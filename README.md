@@ -86,7 +86,7 @@ func (i *fibonacci) Next() (time.Duration, bool) {
 }
 
 func (i fibonacci) Iterator() trier.Iterator {
-	return &fibonacci{i.prev, i.curr}
+	return &fibonacci{curr: i.curr}
 }
 ```
 
