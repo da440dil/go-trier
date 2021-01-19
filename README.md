@@ -11,6 +11,15 @@ Re-execution for functions within configurable limits.
 [Basic](./examples/linear/main.go) usage:
 
 ```go
+import (
+	"context"
+	"fmt"
+	"sync"
+	"time"
+
+	"github.com/da440dil/go-trier"
+)
+
 func main() {
 	tr := trier.NewTrier(
 		// Use linear growth algorithm to create delay between retries
@@ -55,6 +64,14 @@ func main() {
 [Example](./examples/fibonacci/main.go) usage with custom iterable:
 
 ```go
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/da440dil/go-trier"
+)
+
 func main() {
 	tr := trier.NewTrier(
 		// Use fibonacci growth algorithm to create delay between retries
