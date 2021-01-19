@@ -107,7 +107,7 @@ func NewExponentialRate(d time.Duration, rate float64) Iterable {
 	return exponentialRate{float64(d), rate}
 }
 
-// Decorator extends behavior of a iterable.
+// Decorator extends behavior of an iterable.
 type Decorator func(Iterable) Iterable
 
 type maxRetriesB struct {
