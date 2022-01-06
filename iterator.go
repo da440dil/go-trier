@@ -24,7 +24,7 @@ func (i constant) Iterator() Iterator {
 	return i
 }
 
-// Constant creates iterable for creating iterators returning constant delay on each iteration.
+// Constant creates delay which is always the same.
 func Constant(d time.Duration) Iterable {
 	return constant(d)
 }
@@ -42,7 +42,7 @@ func (i linear) Iterator() Iterator {
 	return &linear{rate: i.d}
 }
 
-// Linear creates iterable for creating iterators returning delay which grows linearly on each iteration.
+// Linear creates delay which grows linearly.
 func Linear(d time.Duration) Iterable {
 	return linear{d: d}
 }
@@ -61,7 +61,7 @@ func (i linearRate) Iterator() Iterator {
 	return &linearRate{i.d, i.rate}
 }
 
-// LinearRate creates iterable for creating iterators returning delay which grows linearly with specified rate on each iteration.
+// LinearRate creates delay which grows linearly with specified rate.
 func LinearRate(d, rate time.Duration) Iterable {
 	return linearRate{d, rate}
 }
@@ -78,7 +78,7 @@ func (i exponential) Iterator() Iterator {
 	return &i
 }
 
-// Exponential creates iterable for creating iterators returning delay which grows exponentially on each iteration.
+// Exponential creates delay which grows exponentially.
 func Exponential(d time.Duration) Iterable {
 	return exponential(d)
 }
@@ -97,9 +97,27 @@ func (i exponentialRate) Iterator() Iterator {
 	return &exponentialRate{i.d, i.rate}
 }
 
-// ExponentialRate creates iterable for creating iterators returning delay which grows exponentially with specified rate on each iteration.
+// ExponentialRate creates delay which grows exponentially with specified rate.
 func ExponentialRate(d time.Duration, rate float64) Iterable {
 	return exponentialRate{float64(d), rate}
+}
+
+type fibonacci struct {
+	prev, curr time.Duration
+}
+
+func (i *fibonacci) Next() (time.Duration, bool) {
+	i.prev, i.curr = i.curr, i.prev+i.curr
+	return i.curr, false
+}
+
+func (i fibonacci) Iterator() Iterator {
+	return &fibonacci{curr: i.curr}
+}
+
+// Fibonacci creates delay which grows using Fibonacci algorithm.
+func Fibonacci(d time.Duration) Iterable {
+	return fibonacci{curr: d}
 }
 
 // Decorator extends behavior of an iterable.

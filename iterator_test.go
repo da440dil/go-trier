@@ -168,6 +168,42 @@ func ExampleExponentialRate() {
 	// #3: { 1.728s, false }
 }
 
+func TestFibonacci(t *testing.T) {
+	b := Fibonacci(time.Millisecond * 10)
+	for i := 0; i < 3; i++ {
+		it := b.Iterator()
+		d, done := it.Next()
+		require.Equal(t, time.Millisecond*10, d)
+		require.False(t, done)
+		d, done = it.Next()
+		require.Equal(t, time.Millisecond*20, d)
+		require.False(t, done)
+		d, done = it.Next()
+		require.Equal(t, time.Millisecond*30, d)
+		require.False(t, done)
+		d, done = it.Next()
+		require.Equal(t, time.Millisecond*50, d)
+		require.False(t, done)
+		d, done = it.Next()
+		require.Equal(t, time.Millisecond*80, d)
+		require.False(t, done)
+	}
+}
+
+func ExampleFibonacci() {
+	it := Fibonacci(time.Millisecond * 10).Iterator()
+	for i := 0; i < 5; i++ {
+		d, done := it.Next()
+		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
+	}
+	// Output:
+	// #0: { 10ms, false }
+	// #1: { 20ms, false }
+	// #2: { 30ms, false }
+	// #3: { 50ms, false }
+	// #4: { 80ms, false }
+}
+
 func TestWithMaxRetries(t *testing.T) {
 	b := Constant(time.Second)
 	b = WithMaxRetries(3)(b)
