@@ -106,17 +106,17 @@ func ExponentialRate(d time.Duration, rate float64) Iterable {
 type Decorator func(Iterable) Iterable
 
 type maxRetriesB struct {
-	n int
 	b Iterable
+	n int
 }
 
 func (b maxRetriesB) Iterator() Iterator {
-	return &maxRetriesI{b.n, b.b.Iterator()}
+	return &maxRetriesI{b.b.Iterator(), b.n}
 }
 
 type maxRetriesI struct {
-	n int
 	i Iterator
+	n int
 }
 
 func (i *maxRetriesI) Next() (time.Duration, bool) {
@@ -130,7 +130,7 @@ func (i *maxRetriesI) Next() (time.Duration, bool) {
 // WithMaxRetries sets maximum number of retries.
 func WithMaxRetries(n int) Decorator {
 	return func(b Iterable) Iterable {
-		return maxRetriesB{n, b}
+		return maxRetriesB{b, n}
 	}
 }
 
@@ -139,17 +139,17 @@ func init() {
 }
 
 type jitterB struct {
-	n, j int64
 	b    Iterable
+	n, j int64
 }
 
 func (b jitterB) Iterator() Iterator {
-	return jitterI{b.n, b.j, b.b.Iterator()}
+	return jitterI{b.b.Iterator(), b.n, b.j}
 }
 
 type jitterI struct {
-	n, j int64
 	i    Iterator
+	n, j int64
 }
 
 func (i jitterI) Next() (time.Duration, bool) {
@@ -168,6 +168,6 @@ func (i jitterI) Next() (time.Duration, bool) {
 func WithJitter(d time.Duration) Decorator {
 	return func(b Iterable) Iterable {
 		j := int64(d)
-		return jitterB{j*2 + 1, j, b}
+		return jitterB{b, j*2 + 1, j}
 	}
 }
