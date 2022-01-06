@@ -11,12 +11,15 @@ import (
 func main() {
 	// Create trier.
 	tr := trier.NewTrier(
-		// Use Fibonacci algorithm to create delay between retries.
-		trier.Fibonacci(time.Millisecond*10),
+		// Use linear algorithm to create delay between retries.
+		trier.Linear(time.Millisecond*10),
 		// Set maximum number of retries.
 		trier.WithMaxRetries(5),
+		// Set maximum duration randomly added to or extracted from delay
+		// between retries to improve performance under high contention
+		trier.WithJitter(time.Millisecond*5),
 	)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*300)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*200)
 	defer cancel()
 	for i := 0; i < 3; i++ {
 		ok, err := tr.Try(ctx, func(ctx context.Context) (bool, error) {
