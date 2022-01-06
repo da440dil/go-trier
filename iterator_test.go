@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewConstant(t *testing.T) {
-	b := NewConstant(time.Second)
+func TestConstant(t *testing.T) {
+	b := Constant(time.Second)
 	for i := 0; i < 3; i++ {
 		it := b.Iterator()
 		d, done := it.Next()
@@ -27,8 +27,8 @@ func TestNewConstant(t *testing.T) {
 	}
 }
 
-func ExampleNewConstant() {
-	it := NewConstant(time.Second).Iterator()
+func ExampleConstant() {
+	it := Constant(time.Second).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -40,8 +40,8 @@ func ExampleNewConstant() {
 	// #3: { 1s, false }
 }
 
-func TestNewLinear(t *testing.T) {
-	b := NewLinear(time.Second)
+func TestLinear(t *testing.T) {
+	b := Linear(time.Second)
 	for i := 0; i < 3; i++ {
 		it := b.Iterator()
 		d, done := it.Next()
@@ -59,8 +59,8 @@ func TestNewLinear(t *testing.T) {
 	}
 }
 
-func ExampleNewLinear() {
-	it := NewLinear(time.Second).Iterator()
+func ExampleLinear() {
+	it := Linear(time.Second).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -72,8 +72,8 @@ func ExampleNewLinear() {
 	// #3: { 4s, false }
 }
 
-func TestNewLinearRate(t *testing.T) {
-	b := NewLinearRate(time.Second, time.Second*2)
+func TestLinearRate(t *testing.T) {
+	b := LinearRate(time.Second, time.Second*2)
 	for i := 0; i < 3; i++ {
 		it := b.Iterator()
 		d, done := it.Next()
@@ -91,8 +91,8 @@ func TestNewLinearRate(t *testing.T) {
 	}
 }
 
-func ExampleNewLinearRate() {
-	it := NewLinearRate(time.Second, time.Second*2).Iterator()
+func ExampleLinearRate() {
+	it := LinearRate(time.Second, time.Second*2).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -104,8 +104,8 @@ func ExampleNewLinearRate() {
 	// #3: { 7s, false }
 }
 
-func TestNewExponential(t *testing.T) {
-	b := NewExponential(time.Second)
+func TestExponential(t *testing.T) {
+	b := Exponential(time.Second)
 	for i := 0; i < 3; i++ {
 		it := b.Iterator()
 		d, done := it.Next()
@@ -123,8 +123,8 @@ func TestNewExponential(t *testing.T) {
 	}
 }
 
-func ExampleNewExponential() {
-	it := NewExponential(time.Second).Iterator()
+func ExampleExponential() {
+	it := Exponential(time.Second).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -136,8 +136,8 @@ func ExampleNewExponential() {
 	// #3: { 8s, false }
 }
 
-func TestNewExponentialRate(t *testing.T) {
-	b := NewExponentialRate(time.Second, 0.2)
+func TestExponentialRate(t *testing.T) {
+	b := ExponentialRate(time.Second, 0.2)
 	for i := 0; i < 3; i++ {
 		it := b.Iterator()
 		d, done := it.Next()
@@ -155,8 +155,8 @@ func TestNewExponentialRate(t *testing.T) {
 	}
 }
 
-func ExampleNewExponentialRate() {
-	it := NewExponentialRate(time.Second, 0.2).Iterator()
+func ExampleExponentialRate() {
+	it := ExponentialRate(time.Second, 0.2).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -169,7 +169,7 @@ func ExampleNewExponentialRate() {
 }
 
 func TestWithMaxRetries(t *testing.T) {
-	b := NewConstant(time.Second)
+	b := Constant(time.Second)
 	b = WithMaxRetries(3)(b)
 	for i := 0; i < 3; i++ {
 		it := b.Iterator()
@@ -188,8 +188,8 @@ func TestWithMaxRetries(t *testing.T) {
 	}
 }
 
-func ExampleWithMaxRetries_newConstant() {
-	it := WithMaxRetries(3)(NewConstant(time.Second)).Iterator()
+func ExampleWithMaxRetries_constant() {
+	it := WithMaxRetries(3)(Constant(time.Second)).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -201,8 +201,8 @@ func ExampleWithMaxRetries_newConstant() {
 	// #3: { 0s, true }
 }
 
-func ExampleWithMaxRetries_newLinear() {
-	it := WithMaxRetries(3)(NewLinear(time.Second)).Iterator()
+func ExampleWithMaxRetries_linear() {
+	it := WithMaxRetries(3)(Linear(time.Second)).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -214,8 +214,8 @@ func ExampleWithMaxRetries_newLinear() {
 	// #3: { 0s, true }
 }
 
-func ExampleWithMaxRetries_newExponential() {
-	it := WithMaxRetries(3)(NewExponential(time.Second)).Iterator()
+func ExampleWithMaxRetries_exponential() {
+	it := WithMaxRetries(3)(Exponential(time.Second)).Iterator()
 	for i := 0; i < 4; i++ {
 		d, done := it.Next()
 		fmt.Printf("#%v: { %v, %v }\n", i, d, done)
@@ -228,7 +228,7 @@ func ExampleWithMaxRetries_newExponential() {
 }
 
 func TestWithJitter(t *testing.T) {
-	b := NewLinear(time.Second)
+	b := Linear(time.Second)
 	b = WithMaxRetries(3)(b)
 	b = WithJitter(time.Millisecond * 100)(b)
 	for i := 0; i < 3; i++ {
@@ -248,7 +248,7 @@ func TestWithJitter(t *testing.T) {
 	}
 
 	// for test coverage
-	b = NewLinear(time.Millisecond * -100)
+	b = Linear(time.Millisecond * -100)
 	b = WithJitter(time.Millisecond * 100)(b)
 	it := b.Iterator()
 	d, done := it.Next()

@@ -12,7 +12,7 @@ import (
 func main() {
 	tr := trier.NewTrier(
 		// Use linear growth algorithm to create delay between retries
-		trier.NewLinear(time.Millisecond*100),
+		trier.Linear(time.Millisecond*100),
 		// Set maximum number of retries
 		trier.WithMaxRetries(1),
 		// Set maximum duration randomly added to or extracted from delay

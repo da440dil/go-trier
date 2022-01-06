@@ -10,11 +10,11 @@ import (
 func Benchmark_Iterator(b *testing.B) {
 	d := time.Second
 	tests := map[string]Iterator{
-		"Constant":        NewConstant(d).Iterator(),
-		"Linear":          NewLinear(d).Iterator(),
-		"LinearRate":      NewLinearRate(d, d).Iterator(),
-		"Exponential":     NewExponential(d).Iterator(),
-		"ExponentialRate": NewExponentialRate(d, 1).Iterator(),
+		"Constant":        Constant(d).Iterator(),
+		"Linear":          Linear(d).Iterator(),
+		"LinearRate":      LinearRate(d, d).Iterator(),
+		"Exponential":     Exponential(d).Iterator(),
+		"ExponentialRate": ExponentialRate(d, 1).Iterator(),
 	}
 	for name, tc := range tests {
 		b.Run(name, func(b *testing.B) {
@@ -29,11 +29,11 @@ func Benchmark_IteratorWithMaxRetries(b *testing.B) {
 	d := time.Second
 	fn := WithMaxRetries(math.MaxInt64)
 	tests := map[string]Iterator{
-		"Constant":        fn(NewConstant(d)).Iterator(),
-		"Linear":          fn(NewLinear(d)).Iterator(),
-		"LinearRate":      fn(NewLinearRate(d, d)).Iterator(),
-		"Exponential":     fn(NewExponential(d)).Iterator(),
-		"ExponentialRate": fn(NewExponentialRate(d, 1)).Iterator(),
+		"Constant":        fn(Constant(d)).Iterator(),
+		"Linear":          fn(Linear(d)).Iterator(),
+		"LinearRate":      fn(LinearRate(d, d)).Iterator(),
+		"Exponential":     fn(Exponential(d)).Iterator(),
+		"ExponentialRate": fn(ExponentialRate(d, 1)).Iterator(),
 	}
 	for name, tc := range tests {
 		b.Run(name, func(b *testing.B) {
@@ -48,11 +48,11 @@ func Benchmark_IteratorWithJitter(b *testing.B) {
 	d := time.Second
 	fn := WithJitter(time.Millisecond * 100)
 	tests := map[string]Iterator{
-		"Constant":        fn(NewConstant(d)).Iterator(),
-		"Linear":          fn(NewLinear(d)).Iterator(),
-		"LinearRate":      fn(NewLinearRate(d, d)).Iterator(),
-		"Exponential":     fn(NewExponential(d)).Iterator(),
-		"ExponentialRate": fn(NewExponentialRate(d, 1)).Iterator(),
+		"Constant":        fn(Constant(d)).Iterator(),
+		"Linear":          fn(Linear(d)).Iterator(),
+		"LinearRate":      fn(LinearRate(d, d)).Iterator(),
+		"Exponential":     fn(Exponential(d)).Iterator(),
+		"ExponentialRate": fn(ExponentialRate(d, 1)).Iterator(),
 	}
 	for name, tc := range tests {
 		b.Run(name, func(b *testing.B) {
@@ -66,11 +66,11 @@ func Benchmark_IteratorWithJitter(b *testing.B) {
 func Benchmark_Iterable(b *testing.B) {
 	d := time.Second
 	tests := map[string]Iterable{
-		"Constant":        NewConstant(d),
-		"Linear":          NewLinear(d),
-		"LinearRate":      NewLinearRate(d, d),
-		"Exponential":     NewExponential(d),
-		"ExponentialRate": NewExponentialRate(d, 1),
+		"Constant":        Constant(d),
+		"Linear":          Linear(d),
+		"LinearRate":      LinearRate(d, d),
+		"Exponential":     Exponential(d),
+		"ExponentialRate": ExponentialRate(d, 1),
 	}
 	for name, tc := range tests {
 		b.Run(name, func(b *testing.B) {
@@ -85,11 +85,11 @@ func Benchmark_IterableWithMaxRetries(b *testing.B) {
 	d := time.Second
 	fn := WithMaxRetries(math.MaxInt64)
 	tests := map[string]Iterable{
-		"Constant":        fn(NewConstant(d)),
-		"Linear":          fn(NewLinear(d)),
-		"LinearRate":      fn(NewLinearRate(d, d)),
-		"Exponential":     fn(NewExponential(d)),
-		"ExponentialRate": fn(NewExponentialRate(d, 1)),
+		"Constant":        fn(Constant(d)),
+		"Linear":          fn(Linear(d)),
+		"LinearRate":      fn(LinearRate(d, d)),
+		"Exponential":     fn(Exponential(d)),
+		"ExponentialRate": fn(ExponentialRate(d, 1)),
 	}
 	for name, tc := range tests {
 		b.Run(name, func(b *testing.B) {
@@ -104,11 +104,11 @@ func Benchmark_IterableWithJitter(b *testing.B) {
 	d := time.Second
 	fn := WithJitter(time.Millisecond * 100)
 	tests := map[string]Iterable{
-		"Constant":        fn(NewConstant(d)),
-		"Linear":          fn(NewLinear(d)),
-		"LinearRate":      fn(NewLinearRate(d, d)),
-		"Exponential":     fn(NewExponential(d)),
-		"ExponentialRate": fn(NewExponentialRate(d, 1)),
+		"Constant":        fn(Constant(d)),
+		"Linear":          fn(Linear(d)),
+		"LinearRate":      fn(LinearRate(d, d)),
+		"Exponential":     fn(Exponential(d)),
+		"ExponentialRate": fn(ExponentialRate(d, 1)),
 	}
 	for name, tc := range tests {
 		b.Run(name, func(b *testing.B) {
@@ -130,11 +130,11 @@ func (m *mock) Try(ctx context.Context) (bool, error) {
 func Benchmark_Trier(b *testing.B) {
 	d := time.Millisecond * 10
 	tests := map[string]Trier{
-		"Constant":        NewTrier(NewConstant(d)),
-		"Linear":          NewTrier(NewLinear(d)),
-		"LinearRate":      NewTrier(NewLinearRate(d, d)),
-		"Exponential":     NewTrier(NewExponential(d)),
-		"ExponentialRate": NewTrier(NewExponentialRate(d, 1)),
+		"Constant":        NewTrier(Constant(d)),
+		"Linear":          NewTrier(Linear(d)),
+		"LinearRate":      NewTrier(LinearRate(d, d)),
+		"Exponential":     NewTrier(Exponential(d)),
+		"ExponentialRate": NewTrier(ExponentialRate(d, 1)),
 	}
 	ctx := context.Background()
 	m := new(mock)
@@ -155,11 +155,11 @@ func Benchmark_TrierWithMaxRetries(b *testing.B) {
 	d := time.Millisecond * 10
 	fn := WithMaxRetries(1)
 	tests := map[string]Trier{
-		"Constant":        NewTrier(NewConstant(d), fn),
-		"Linear":          NewTrier(NewLinear(d), fn),
-		"LinearRate":      NewTrier(NewLinearRate(d, d), fn),
-		"Exponential":     NewTrier(NewExponential(d), fn),
-		"ExponentialRate": NewTrier(NewExponentialRate(d, 1), fn),
+		"Constant":        NewTrier(Constant(d), fn),
+		"Linear":          NewTrier(Linear(d), fn),
+		"LinearRate":      NewTrier(LinearRate(d, d), fn),
+		"Exponential":     NewTrier(Exponential(d), fn),
+		"ExponentialRate": NewTrier(ExponentialRate(d, 1), fn),
 	}
 	ctx := context.Background()
 	for name, tc := range tests {
@@ -175,11 +175,11 @@ func Benchmark_TrierWithJitter(b *testing.B) {
 	d := time.Millisecond * 10
 	fn := WithJitter(time.Millisecond * 2)
 	tests := map[string]Trier{
-		"Constant":        NewTrier(NewConstant(d), fn),
-		"Linear":          NewTrier(NewLinear(d), fn),
-		"LinearRate":      NewTrier(NewLinearRate(d, d), fn),
-		"Exponential":     NewTrier(NewExponential(d), fn),
-		"ExponentialRate": NewTrier(NewExponentialRate(d, 1), fn),
+		"Constant":        NewTrier(Constant(d), fn),
+		"Linear":          NewTrier(Linear(d), fn),
+		"LinearRate":      NewTrier(LinearRate(d, d), fn),
+		"Exponential":     NewTrier(Exponential(d), fn),
+		"ExponentialRate": NewTrier(ExponentialRate(d, 1), fn),
 	}
 	ctx := context.Background()
 	m := new(mock)
@@ -197,11 +197,11 @@ func Benchmark_TrierWithMaxRetriesJitter(b *testing.B) {
 	fn1 := WithMaxRetries(1)
 	fn2 := WithJitter(time.Millisecond * 2)
 	tests := map[string]Trier{
-		"Constant":        NewTrier(NewConstant(d), fn1, fn2),
-		"Linear":          NewTrier(NewLinear(d), fn1, fn2),
-		"LinearRate":      NewTrier(NewLinearRate(d, d), fn1, fn2),
-		"Exponential":     NewTrier(NewExponential(d), fn1, fn2),
-		"ExponentialRate": NewTrier(NewExponentialRate(d, 1), fn1, fn2),
+		"Constant":        NewTrier(Constant(d), fn1, fn2),
+		"Linear":          NewTrier(Linear(d), fn1, fn2),
+		"LinearRate":      NewTrier(LinearRate(d, d), fn1, fn2),
+		"Exponential":     NewTrier(Exponential(d), fn1, fn2),
+		"ExponentialRate": NewTrier(ExponentialRate(d, 1), fn1, fn2),
 	}
 	ctx := context.Background()
 	for name, tc := range tests {

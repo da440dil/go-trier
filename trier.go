@@ -19,12 +19,10 @@ func NewTrier(b Iterable, fns ...Decorator) Trier {
 	return Trier{b}
 }
 
-// Retriable is a function which execution could be retried,
-// returns execution success flag.
+// Retriable is a function which execution could be retried, returns execution success flag.
 type Retriable func(ctx context.Context) (bool, error)
 
-// Try executes retriable function,
-// retries execution if execution success flag equals false.
+// Try executes retriable function, retries execution if execution success flag equals false.
 func (t Trier) Try(ctx context.Context, fn Retriable) (bool, error) {
 	var it Iterator
 	var timer *time.Timer

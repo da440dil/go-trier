@@ -24,9 +24,8 @@ func (i constant) Iterator() Iterator {
 	return i
 }
 
-// NewConstant creates iterable for creating iterators
-// returning constant delay on each iteration.
-func NewConstant(d time.Duration) Iterable {
+// Constant creates iterable for creating iterators returning constant delay on each iteration.
+func Constant(d time.Duration) Iterable {
 	return constant(d)
 }
 
@@ -43,9 +42,8 @@ func (i linear) Iterator() Iterator {
 	return &linear{rate: i.d}
 }
 
-// NewLinear creates iterable for creating iterators
-// returning delay which grows linearly on each iteration.
-func NewLinear(d time.Duration) Iterable {
+// Linear creates iterable for creating iterators returning delay which grows linearly on each iteration.
+func Linear(d time.Duration) Iterable {
 	return linear{d: d}
 }
 
@@ -63,9 +61,8 @@ func (i linearRate) Iterator() Iterator {
 	return &linearRate{i.d, i.rate}
 }
 
-// NewLinearRate creates iterable for creating iterators
-// returning delay which grows linearly with specified rate on each iteration.
-func NewLinearRate(d, rate time.Duration) Iterable {
+// LinearRate creates iterable for creating iterators returning delay which grows linearly with specified rate on each iteration.
+func LinearRate(d, rate time.Duration) Iterable {
 	return linearRate{d, rate}
 }
 
@@ -81,9 +78,8 @@ func (i exponential) Iterator() Iterator {
 	return &i
 }
 
-// NewExponential creates iterable for creating iterators
-// returning delay which grows exponentially on each iteration.
-func NewExponential(d time.Duration) Iterable {
+// Exponential creates iterable for creating iterators returning delay which grows exponentially on each iteration.
+func Exponential(d time.Duration) Iterable {
 	return exponential(d)
 }
 
@@ -101,9 +97,8 @@ func (i exponentialRate) Iterator() Iterator {
 	return &exponentialRate{i.d, i.rate}
 }
 
-// NewExponentialRate creates iterable for creating iterators
-// returning delay which grows exponentially with specified rate on each iteration.
-func NewExponentialRate(d time.Duration, rate float64) Iterable {
+// ExponentialRate creates iterable for creating iterators returning delay which grows exponentially with specified rate on each iteration.
+func ExponentialRate(d time.Duration, rate float64) Iterable {
 	return exponentialRate{float64(d), rate}
 }
 
@@ -169,8 +164,7 @@ func (i jitterI) Next() (time.Duration, bool) {
 	return v, done
 }
 
-// WithJitter sets maximum duration randomly added to or extracted from delay
-// between retries to improve performance under high contention.
+// WithJitter sets maximum duration randomly added to or extracted from delay between retries to improve performance under high contention.
 func WithJitter(d time.Duration) Decorator {
 	return func(b Iterable) Iterable {
 		j := int64(d)
