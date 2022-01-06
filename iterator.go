@@ -152,8 +152,10 @@ func WithMaxRetries(n int) Decorator {
 	}
 }
 
+var random *rand.Rand
+
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	random = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
 type jitterB struct {
@@ -175,7 +177,7 @@ func (i jitterI) Next() (time.Duration, bool) {
 	if done {
 		return 0, done
 	}
-	v = v + time.Duration(rand.Int63n(i.n)-i.j)
+	v = v + time.Duration(random.Int63n(i.n)-i.j)
 	if v < 0 {
 		v = 0
 	}
